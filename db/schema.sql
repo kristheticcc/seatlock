@@ -3,37 +3,38 @@
 -- Schema for table: users
 CREATE TABLE users (
     user_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    full_name VARCHAR(70),
-    email VARCHAR(70) UNIQUE,
-    created_at TIMESTAMP
+    full_name VARCHAR(70) NOT NULL,
+    email VARCHAR(70) NOT NULL UNIQUE,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 -- Schema for table: venues
 CREATE TABLE venues (
     venue_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    venue_name VARCHAR(70),
-    address VARCHAR(70),
-    city VARCHAR(70)
+    venue_name VARCHAR(70) NOT NULL,
+    address VARCHAR(70) NOT NULL,
+    city VARCHAR(70) NOT NULL
 );
 
 -- Schema for table: seats
 CREATE TABLE seats (
     seat_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    section_name VARCHAR(25),
-    row_label VARCHAR(25),
-    seat_number INT,
+    section_name VARCHAR(25) NOT NULL,
+    row_label VARCHAR(25) NOT NULL,
+    seat_number INT NOT NULL CHECK (seat_number > 0),
     venue_id INT NOT NULL,
     CONSTRAINT fk_venue
         FOREIGN KEY (venue_id)
-        REFERENCES venues(venue_id)
+        REFERENCES venues(venue_id),
+    UNIQUE(venue_id, section_name, row_label, seat_number)
 );
 
 -- Schema for table: events
 CREATE TABLE events (
     event_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    event_name VARCHAR(60),
-    category VARCHAR(60),
-    description VARCHAR(100)
+    event_name VARCHAR(60) NOT NULL,
+    category VARCHAR(60) NOT NULL,
+    description VARCHAR(100) NOT NULL
 );
 
 -- Schema for table: performances
@@ -50,8 +51,7 @@ CREATE TABLE reservations (
     reservation_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     user_id INT NOT NULL REFERENCES users(user_id),
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    status TEXT NOT NULL CHECK (status IN ('CONFIRMED', 'CANCELLED')),
-    total_amount NUMERIC(10, 2) NOT NULL CHECK (total_amount >= 0)
+    status TEXT NOT NULL CHECK (status IN ('CONFIRMED', 'CANCELLED'))
 );
 
 -- Schema for table: reservation items
